@@ -1,3 +1,8 @@
+import {
+  GITHUB_REPOSITORY_ERROR,
+  RELEASE_STRATEGY_ERROR,
+  RELEASE_VERSION_ERROR,
+} from './constants';
 import { parseEnvironmentVariables } from './utils';
 
 describe('parseEnvironmentVariables', () => {
@@ -27,9 +32,11 @@ describe('parseEnvironmentVariables', () => {
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: 'Org/Name',
         RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toStrictEqual({
       releaseVersion: '1.0.0',
+      releaseStrategy: 'fixed',
       repoUrl: 'https://github.com/Org/Name',
       workspaceRoot: 'foo',
     });
@@ -43,20 +50,21 @@ describe('parseEnvironmentVariables', () => {
         GITHUB_WORKSPACE: '',
         GITHUB_REPOSITORY: 'Org/Name',
         RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toThrow(errorMessage);
     expect(() => parseEnvironmentVariables()).toThrow(errorMessage);
   });
 
   it('throws if GITHUB_REPOSITORY is invalid', () => {
-    const errorMessage =
-      'process.env.GITHUB_REPOSITORY must be a valid GitHub repository identifier.';
+    const errorMessage = GITHUB_REPOSITORY_ERROR;
 
     expect(() =>
       parseEnvironmentVariables({
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: '',
         RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toThrow(errorMessage);
     expect(() =>
@@ -64,6 +72,7 @@ describe('parseEnvironmentVariables', () => {
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: 'Org/',
         RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toThrow(errorMessage);
     expect(() =>
@@ -71,19 +80,20 @@ describe('parseEnvironmentVariables', () => {
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: '/Name',
         RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toThrow(errorMessage);
   });
 
   it('throws if RELEASE_VERSION is invalid', () => {
-    const errorMessage =
-      'process.env.RELEASE_VERSION must be a valid SemVer version.';
+    const errorMessage = RELEASE_VERSION_ERROR;
 
     expect(() =>
       parseEnvironmentVariables({
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: 'Org/Name',
         RELEASE_VERSION: '',
+        RELEASE_STRATEGY: 'fixed',
       }),
     ).toThrow(errorMessage);
     expect(() =>
@@ -91,6 +101,20 @@ describe('parseEnvironmentVariables', () => {
         GITHUB_WORKSPACE: 'foo',
         GITHUB_REPOSITORY: 'Org/Name',
         RELEASE_VERSION: 'kaplar',
+        RELEASE_STRATEGY: 'fixed',
+      }),
+    ).toThrow(errorMessage);
+  });
+
+  it('throws if STRATEGY is invalid', () => {
+    const errorMessage = RELEASE_STRATEGY_ERROR;
+
+    expect(() =>
+      parseEnvironmentVariables({
+        GITHUB_WORKSPACE: 'foo',
+        GITHUB_REPOSITORY: 'Org/Name',
+        RELEASE_VERSION: '1.0.0',
+        RELEASE_STRATEGY: 'lol',
       }),
     ).toThrow(errorMessage);
   });
